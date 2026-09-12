@@ -5191,12 +5191,30 @@ function dockerRcloneBoxOptions(entry: BoxMount): Record<string, string> {
 }
 
 function joinRemotePath(base: string, prefix: string | undefined): string {
-  const normalizedPrefix = prefix?.replace(/^\/+|\/+$/gu, '');
+  let normalizedPrefix = prefix;
+  if (normalizedPrefix) {
+    let start = 0;
+    let end = normalizedPrefix.length;
+    while (start < end && normalizedPrefix[start] === '/') {
+      start++;
+    }
+    while (end > start && normalizedPrefix[end - 1] === '/') {
+      end--;
+    }
+    normalizedPrefix = normalizedPrefix.slice(start, end);
+  }
   return normalizedPrefix ? `${base}/${normalizedPrefix}` : base;
 }
 
 function normalizeBoxRemotePath(path: string | undefined): string {
-  return path?.replace(/^\/+/gu, '') ?? '';
+  if (!path) {
+    return '';
+  }
+  let start = 0;
+  while (start < path.length && path[start] === '/') {
+    start++;
+  }
+  return path.slice(start);
 }
 
 function withDefinedStringValues(

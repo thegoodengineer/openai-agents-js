@@ -611,7 +611,14 @@ function joinRelativePaths(left: string, right: string): string {
 }
 
 function joinSourcePath(sourceRoot: string, relativePath: string): string {
-  const trimmedRoot = sourceRoot.replace(/[\\/]+$/, '');
+  let end = sourceRoot.length;
+  while (
+    end > 0 &&
+    (sourceRoot[end - 1] === '/' || sourceRoot[end - 1] === '\\')
+  ) {
+    end -= 1;
+  }
+  const trimmedRoot = sourceRoot.slice(0, end);
   if (!trimmedRoot) {
     return relativePath;
   }

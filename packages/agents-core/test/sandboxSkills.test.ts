@@ -769,4 +769,50 @@ describe('Skills', () => {
     });
     session.assertComplete();
   });
+
+  it.each(['skills/', 'skills///', 'skills\\', 'skills\\\\'])(
+    'trims trailing separators from lazy skill local_dir src %j in linear time',
+    async (src) => {
+      const capability = skills({
+        lazyFrom: {
+          source: {
+            type: 'local_dir',
+            src,
+          },
+          index: [
+            {
+              name: 'dynamic-skill',
+              description: 'dynamic',
+            },
+          ],
+        },
+      });
+      const session = scriptedSandboxSession([
+        { method: 'pathExists', result: false },
+        { method: 'materializeEntry', result: undefined },
+      ]);
+      capability.bind(session);
+
+      const tools = capability.tools();
+      await (tools[0] as any).invoke(
+        undefined,
+        JSON.stringify({ skill_name: 'dynamic-skill' }),
+      );
+
+      expect(session.calls[1]).toMatchObject({
+        method: 'materializeEntry',
+        args: [
+          {
+            path: '.agents/dynamic-skill',
+            entry: {
+              type: 'local_dir',
+              src: 'skills/dynamic-skill',
+            },
+            runAs: undefined,
+          },
+        ],
+      });
+      session.assertComplete();
+    },
+  );
 });
