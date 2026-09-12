@@ -54,10 +54,7 @@ export async function POST(req: Request) {
 
     return createAiSdkUiMessageStreamResponse(stream);
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'The request failed with an unexpected error.';
-    return new Response(message, { status: 500 });
+    console.error('Error handling chat request:', error);
+    return new Response('Internal server error', { status: 500 });
   }
 }
